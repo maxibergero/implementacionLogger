@@ -1,0 +1,138 @@
+
+paths:
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Get all users
+      operationId: getUsers
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        500:
+          description: "Error en crear proyecto"
+      security:
+        - bearerAuth: []  # Aquí se aplica la seguridad
+
+  /api/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user by id
+      description: Get user by id
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: "User not found"
+        400:
+          description: "Error en consultar usuario"
+    
+    put:
+      tags:
+        - Users
+      summary: Update a user
+      description: Update a user
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: "User not found"
+        400:
+          description: "Error en actualizar usuario"
+
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      description: Delete a user
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: "User not found"
+        400:
+          description: "Error en borrar usuario"
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: The auto-generated id of the user
+        nombre:
+          type: string
+          description: The name of the user
+        apellido:
+          type: string
+          description: The last name of the user
+        edad:
+          type: number
+          description: The age of the user
+        email:
+          type: string
+          description: The email of the user
+        rol:
+          type: string
+          description: The rol of the user
+        cart:
+          type: string
+          description: The cart of the user
+

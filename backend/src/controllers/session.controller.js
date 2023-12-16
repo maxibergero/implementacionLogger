@@ -16,9 +16,10 @@ export const login = async (req, res) => {
         }*/
 
         const token = generateToken(req.user)
-
+        req.logger.debug(`Token generado(login): ${token}`)
         res.status(200).send({ token })
     } catch (error) {
+        req.logger.fatal(`Error al iniciar sesion: ${error}`)
         res.status(500).send({ mensaje: `Error al iniciar sesion ${error}` })
     }
 
@@ -31,8 +32,10 @@ export const register = async (req, res) => {
             return res.status(400).send({ mensaje: "Usuario ya existente" })
         }
 
+        req.logger.debug(`Usuario registrado: ${req.user}`)
         res.status(200).send({ mensaje: 'Usuario registrado' })
     } catch (error) {
+        req.logger.fatal(`Error al registrar usuario: ${error}`)
         res.status(500).send({ mensaje: `Error al registrar usuario ${error}` })
     }
 }

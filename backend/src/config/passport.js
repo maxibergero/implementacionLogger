@@ -16,10 +16,22 @@ const ExtractJWT = jwt.ExtractJwt //Extrar de las cookies el token
 const initializePassport = () => {
 
     const cookieExtractor = req => {
-        //En lugar de tomar de las cookies directamente todo de la peticion
-        const token = req.headers.authorization ? req.headers.authorization : {}
+        
+        
 
-        console.log("cookieExtractor", token)
+        //En lugar de tomar de las cookies directamente todo de la peticion
+        let token = req.headers.authorization ? req.headers.authorization : {}
+
+
+
+        
+        //Si token comienza con Bearer se quita. Se implenta para implementación de Swagger que en autorization devuelve
+        // el req.headers.authorization con el Bearer delante,  distinto a como lo pasamos por poarte del cliente
+        if (token.startsWith('Bearer ')) {
+            token = token.slice(7, token.length)
+        }
+
+        req.logger.debug(`Token(cookieEstractor): ${token}`)
 
         return token
 
@@ -30,7 +42,7 @@ const initializePassport = () => {
         secretOrKey: process.env.JWT_SECRET
     }, async (jwt_payload, done) => { //jwt_payload = info del token (en este caso, datos del cliente)
         try {
-            console.log("JWT", jwt_payload)
+            
             return done(null, jwt_payload)
         } catch (error) {
             return done(error)
@@ -46,9 +58,13 @@ const initializePassport = () => {
             
             const { nombre, apellido, email, edad } = req.body
 
+            req.logger.info(`Credenciales(register): \n Email: ${username} \n Password: ${password}`)
+
+            
+
             try {
                 const user = await userModel.findOne({ email: email })
-
+                req.logger.degub(`User(register): ${user}`)
                 if (user) {
                     //Caso de error: usuario existe
                     return done(null, false)
@@ -65,9 +81,11 @@ const initializePassport = () => {
                     password: passwordHash
                 })
 
+                req.logger.info(`User(created): ${userCreated}`)
                 return done(null, userCreated)
 
             } catch (error) {
+                req.logger.fatal(`Error en registrar usuario: ${error}`)
                 return done(error)
             }
         }))
@@ -75,6 +93,7 @@ const initializePassport = () => {
     passport.use('login', new LocalStrategy(
         { usernameField: 'email' }, async (username, password, done) => {
             try {
+                
                 const user = await userModel.findOne({ email: username })
 
                 if (!user) {

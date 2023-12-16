@@ -13,6 +13,7 @@ export const generarTicket = async (req, res) => {
         const seconds = purchase_datatime.getSeconds().toString().padStart(2, '0');
         const stringRes = `${year}${month}${day}${hour}${minutes}${seconds}`;
 
+        req.logger.info(`Generando Codigo(generateUnicode): \n year: ${year} \n month: ${month} \n day: ${day} \n hour: ${hour} \n minutes: ${minutes} \n seconds: ${seconds}` )
         return stringRes
     }
 
@@ -39,19 +40,29 @@ export const generarTicket = async (req, res) => {
         // Asignar el código generado al campo 'code'
         const code = uniqueCode;
 
+        req.logger.info(`Info del ticket: \n purcharser: ${purcharser} \n purchase_datatime: ${purchase_datatime} \n code: ${code} \n amount: ${amount}`)
+        req.logger.debug(`User(generarTicket): ${user}`)
+        
+        if(arrayCart){
+            let cont = 0;
+            arrayCart.forEach(product => {
+                cont += 1
+                req.logger.debug(`Product(${cont}): ${product}`)
+            });
+        }
+
         const ticket = await ticketModel.create({ purcharser, purchase_datatime, code, amount })
 
-
+        req.logger.debug(`Ticket generado(generarTicket): ${ticket}`)
         if (ticket) {
             res.status(200).send(ticket)
         } else {
             res.status(400).send("Error al crear ticket")
         }
     } catch (error) {
+        req.logger.fatal(`Error al generar ticket: ${error}`)
         throw new Error(error)
     }
-
-
 
 
 }

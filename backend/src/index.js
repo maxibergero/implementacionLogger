@@ -8,8 +8,13 @@ import initializePassport from './config/passport.js'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
 import router from './routes/index.routes.js'
+import __dirname from './path.js'
+import swaggerJsdoc from 'swagger-jsdoc'
+import swaggerUiExpress from 'swagger-ui-express'
+import { addLogger } from './config/logger.js'
 
-const whiteList = ['http://localhost:5173','http://127.0.0.1:5173']
+
+const whiteList = ['http://localhost:5173','http://127.0.0.1:5173', 'http://localhost:4000']
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -20,6 +25,23 @@ const corsOptions = {
         }
     }
 }
+
+//Configuración de Swagger
+
+const swaggerOptions = {
+    definition:{
+        openapi: '3.0.1',
+        info: {
+            title: 'API REST con Express y MongoDB',
+            version: '1.0.0',
+            description: "Api pensada para la aplicación Swagger"
+        },
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`]
+};
+const specs = swaggerJsdoc(swaggerOptions)
+
+
 
 const app = express()
 const PORT = 4000
@@ -52,6 +74,12 @@ app.use(session({
     saveUninitialized: false //Fuerzo a guardar la session a pesar de no tener ningun dato
 }))
 
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
+
+//Logger 
+
+app.use(addLogger)
+
 initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
@@ -63,5 +91,4 @@ app.use('/', router)
 app.listen(PORT, () => {
     console.log(`Server on Port ${PORT}`)
 })
-
 

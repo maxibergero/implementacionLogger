@@ -44,7 +44,14 @@ export const ProductsCompra = () => {
 
 
         try {
-            const response = await fetch(`http://localhost:4000/api/products?limit=${limit = limit ? limit : ""}&page=${page = page ? page : ""}`);
+            const response = await fetch(`http://localhost:4000/api/products?limit=${limit = limit ? limit : ""}&page=${page = page ? page : ""}`, {
+
+            method: 'GET',
+            headers: {
+                'Authorization': `${token}`,
+                'Content-type': 'application/json'
+            }
+        });
 
             if (!response.ok) {
                 throw new Error('Not found Products');
@@ -387,4 +394,3 @@ export const ProductsCompra = () => {
 
     );
 };
-
